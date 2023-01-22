@@ -320,6 +320,14 @@ void sleep_ms (int num)
     nanosleep(&tspec,0);
     }
 
+void sleep_us (int num)
+    {
+    struct timespec tspec;
+    tspec.tv_sec=num/1000000;
+    tspec.tv_nsec=(num%1000000)*1000;
+    nanosleep(&tspec,0);
+    }
+
 void printHelp()
     {
     flsprintf(stdout,"pp programmer\n");
@@ -704,7 +712,12 @@ int p18a_write_page (unsigned char * data, int address, unsigned char num)
     putByte((address>>8)&0xFF);
     putByte((address>>0)&0xFF);
     for (i=0; i<num; i++)
+        {
         putByte(data[i]);
+
+        // Without this delay Arduino Leonardo's USB serial might be stalled
+        sleep_us(5);
+        }
     getByte();
     return 0;
     }
