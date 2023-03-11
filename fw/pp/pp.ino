@@ -1039,8 +1039,9 @@ p16c_set_pc(addr);
 for (i=0;i<n;i++)
   {  
   isp_send_8_msb(0xE0);  
+  _delay_us(2);
   isp_send_24_msb(data[i]);  
-  _delay_us(65);
+  _delay_us(75);
   }
 }
 
@@ -1050,8 +1051,9 @@ unsigned char i;
 //_delay_us(3*ISP_CLK_DELAY);
 p16c_set_pc(addr);
 isp_send_8_msb(0xE0);  
+_delay_us(2);
 isp_send_24_msb(data);  
-_delay_us(65); 
+_delay_ms(11);
 }
 
 
