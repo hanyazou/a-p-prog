@@ -1024,15 +1024,10 @@ int parse_hex (char * filename, unsigned char * progmem, unsigned char * config)
                 if (verbose>2) printf("PM ");
                 for (i=0; i<line_len; i++) progmem[effective_address+i] = line_content[i];
                 }
-            if ((line_address_offset==0x30)&((chip_family==CF_P18F_A)|(chip_family==CF_P18F_D)|(chip_family==CF_P18F_E)|(chip_family==CF_P18F_F)|(chip_family==CF_P18F_Q)))
+            if ((line_address_offset==0x30)&((chip_family==CF_P18F_A)|(chip_family==CF_P18F_D)|(chip_family==CF_P18F_E)|(chip_family==CF_P18F_F)|(chip_family==CF_P18F_Q)|(chip_family==CF_P18F_Qxx)))
                 {
                 if (verbose>2) printf("CB ");
                 for (i=0; i<line_len; i++) config[i] = line_content[i];
-                }
-            if ((line_address_offset==0x30)&&((chip_family==CF_P18F_Qxx)))
-                {
-                if (verbose>2) printf("CB ");
-                for (i=0; i<line_len; i++) config[effective_address-0x300000+i] = line_content[i];
                 }
             if ((chip_family==CF_P18F_B)&(effective_address==(flash_size-config_size)))
                 {
