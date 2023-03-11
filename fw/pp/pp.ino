@@ -376,6 +376,30 @@ int main (void)
           usart_tx_b (0xC6);
           rx_state = 0;
           }        
+        if (rx_message[0]==0x47)
+          {
+          usart_tx_b (0xC7);
+          addr = (((unsigned long)(rx_message[3]))<<16) + (((unsigned long)(rx_message[4]))<<8) + (((unsigned long)(rx_message[5]))<<0);
+          p18q_isp_read_cfg (flash_buffer, addr, rx_message[2]);
+          for (i=0;i<rx_message[2];i++)
+            {
+            usart_tx_b (flash_buffer[i]&0xFF);
+            }
+          rx_state = 0;
+          }
+        if (rx_message[0]==0x48)
+          {
+          addr = (((unsigned long)(rx_message[3]))<<16) + (((unsigned long)(rx_message[4]))<<8) + (((unsigned long)(rx_message[5]))<<0);
+          p18q_isp_write_cfg (rx_message[6], addr);
+          usart_tx_b (0xC5);
+          rx_state = 0;
+          } 
+        if (rx_message[0]==0x49)
+          {
+          p18qxx_bulk_erase ();
+          usart_tx_b (0xC3);
+          rx_state = 0;
+          }         
         }
       }      
     }
@@ -780,6 +804,25 @@ p_18_modfied_nop(1);
 _delay_ms(5);
 }
 
+void p18q_isp_read_cfg (unsigned int * data, unsigned long addr, unsigned char n)
+{
+unsigned int retval;
+unsigned char tmp;
+//_delay_us(3*ISP_CLK_DELAY);
+p16c_set_pc(addr);
+for (i=0;i<n;i++)
+  {
+  isp_send_8_msb(0xFE);
+  _delay_us(2);
+  tmp = isp_read_16_msb();
+  retval = isp_read_8_msb();
+  _delay_us(2);
+  retval = retval >> 1;
+  if (tmp&0x01) retval = retval | 0x80;
+  data[i] = retval;
+  }
+}
+
 void p18fk_isp_write_cfg (unsigned char data1, unsigned char data2, unsigned long addr)
 {
 unsigned int i;
@@ -978,6 +1021,14 @@ unsigned char i;
 p16c_set_pc(addr);
 p16c_load_nvm(data,0);  
 p16c_begin_prog(1);
+}
+
+void p18qxx_bulk_erase (void)
+{
+  isp_send_8_msb(0x18);
+  _delay_us(2);
+  isp_send_24_msb(0x00001e);    // Bit 3: Configuration memory Bit 1: Flash memory
+  _delay_ms(11);
 }
 
 void p18q_isp_write_pgm (unsigned int * data, unsigned long addr, unsigned char n)

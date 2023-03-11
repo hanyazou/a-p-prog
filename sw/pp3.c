@@ -825,7 +825,21 @@ int p18q_write_single_cfg (unsigned char data1, unsigned char data2, int address
     getByte();
     return 0;
     }
-    
+
+int p18q_write_byte_cfg (unsigned char data, int address)
+    {
+    if (verbose>2) flsprintf(stdout,"Writing cfg 0x%2.2x at 0x%6.6x\n", data, address);
+    putByte(0x48);
+    putByte(5);
+    putByte(0);
+    putByte((address>>16)&0xFF);
+    putByte((address>>8)&0xFF);
+    putByte((address>>0)&0xFF);
+    putByte(data);
+    getByte();
+    return 0;
+    }
+
 int p18q_write_page (unsigned char * data, int address, unsigned char num)
     {
     unsigned char i, empty;
@@ -866,6 +880,26 @@ int p16c_write_cfg (void)
 	return 0;
     }
 
+
+int p18q_read_cfg (unsigned char * data, int address, unsigned char num)
+    {
+    unsigned char i;
+    if (verbose>2) flsprintf(stdout,"Reading config of %d bytes at 0x%6.6x\n", num, address);
+    putByte(0x47);
+    putByte(0x04);
+    putByte(num);
+    putByte((address>>16)&0xFF);
+    putByte((address>>8)&0xFF);
+    putByte((address>>0)&0xFF);
+    getByte();
+    for (i=0; i<num; i++)
+        {
+        *data++ = getByte();
+        }
+    // for (i=0; i<num; i++) if (verbose>2) flsprintf(stdout,"%2.2x ", data[i]);
+
+    return 0;
+    }
 
 int prog_enter_progmode (void)
     {
