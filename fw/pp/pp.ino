@@ -396,7 +396,7 @@ int main (void)
           } 
         if (rx_message[0]==0x49)
           {
-          p16qxx_bulk_erase ();
+          p18qxx_bulk_erase ();
           usart_tx_b (0xC3);
           rx_state = 0;
           }         
@@ -1023,7 +1023,7 @@ p16c_load_nvm(data,0);
 p16c_begin_prog(1);
 }
 
-void p16qxx_bulk_erase (void)
+void p18qxx_bulk_erase (void)
 {
   isp_send_8_msb(0x18);
   _delay_us(2);
