@@ -826,6 +826,15 @@ int p16c_write_single_cfg (unsigned char data1, unsigned char data2, int address
     return 0;
     }
 
+int p18qxx_mass_erase (void)
+    {
+    if (verbose>2) flsprintf(stdout,"Mass erase\n");
+    putByte(0x49);
+    putByte(0x00);
+    getByte();
+    return 0;
+    }
+
 int p18q_write_single_cfg (unsigned char data1, unsigned char data2, int address)
     {
     if (verbose>2) flsprintf(stdout,"Writing cfg 0x%2.2x 0x%2.2x at 0x%6.6x\n", data1, data2, address);
@@ -1116,8 +1125,10 @@ int main(int argc, char *argv[])
                 p18d_mass_erase();
             if (chip_family==CF_P18F_E)
                 p18e_mass_erase();
-            if ((chip_family==CF_P18F_F)|(chip_family==CF_P18F_Q)|(chip_family==CF_P18F_Qxx))
+            if ((chip_family==CF_P18F_F)|(chip_family==CF_P18F_Q))
                 p16c_mass_erase();                
+            if (chip_family==CF_P18F_Qxx)
+                p18qxx_mass_erase();
             if (verbose>0) printf ("Programming FLASH (%d B in %d pages per %d bytes): \n",flash_size,flash_size/page_size,page_size);
             fflush(stdout);
             for (i=0; i<flash_size; i=i+page_size)
