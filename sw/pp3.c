@@ -41,7 +41,7 @@ char * PP_VERSION = "0.99";
 #define	CF_P18F_Q8x	13
 #define	CF_P18F_Qxx	14
 
-int verbose = 1,verify = 1,program = 1,sleep_time = 0;
+int verbose = 1,verify = 1,program = 1,sleep_time = 0,wait_for_start = 0;
 int devid_expected,devid_mask,baudRate,com,flash_size,page_size,chip_family,config_size;
 unsigned char file_image[70000],progmem[PROGMEM_LEN], config_bytes[CONFIG_LEN];
 
@@ -328,7 +328,7 @@ void printHelp()
 void parseArgs(int argc, char *argv[])
     {
     int c;
-    while ((c = getopt (argc, argv, "c:nps:t:v:")) != -1)
+    while ((c = getopt (argc, argv, "c:nps:t:v:w")) != -1)
         {
         switch (c)
             {
@@ -349,6 +349,9 @@ void parseArgs(int argc, char *argv[])
                 break;
             case 'v' :
                 sscanf(optarg,"%d",&verbose);
+                break;
+            case 'w' :
+                wait_for_start = 1;
                 break;
             case '?' :
                 if (isprint (optopt))
@@ -980,6 +983,20 @@ int prog_get_device_id (void)
     return 0;
     }
 
+int prog_wait_start (void)
+    {
+    if (verbose>1) flsprintf(stdout,"Waiting for the switch ...\n");
+    while (1)
+        {
+        putByte(0x4a);
+        putByte(0x00);
+        getByte();
+        if (getByte())
+            break;
+        }
+    return 0;
+    }
+
 //*********************************************************************************//
 //*********************************************************************************//
 //*********************************************************************************//
@@ -1076,6 +1093,9 @@ int main(int argc, char *argv[])
         fflush(stdout);
         sleep_ms (sleep_time);
         }
+
+    if (wait_for_start)
+        prog_wait_start();
 
     for (i=0; i<PROGMEM_LEN; i++) progmem[i] = 0xFF;		//assume erased memories (0xFF)
     for (i=0; i<CONFIG_LEN; i++) config_bytes[i] = 0xFF;

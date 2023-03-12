@@ -93,7 +93,8 @@ unsigned char rx_message[280],rx_message_ptr;
 unsigned int flash_buffer[260];
 unsigned int test,cfg_val;
 unsigned long addr;
-int main (void)
+int waiting_for_start=0;
+void setup (void)
 {
   UBRR0H = ((_UBRR) & 0xF00);
   UBRR0L = (uint8_t) ((_UBRR) & 0xFF); 
@@ -164,8 +165,10 @@ int main (void)
     
     }
     */
-  while (1)
-    {
+}
+
+void loop (void)
+{
     if (usart_rx_rdy())
       {
       rx = usart_rx_b();
@@ -400,9 +403,34 @@ int main (void)
           usart_tx_b (0xC3);
           rx_state = 0;
           }         
+        if (rx_message[0]==0x4A)
+          {
+          pinMode(A2, INPUT_PULLUP);
+          usart_tx_b (0xCA);
+          if (digitalRead(A2))
+            {
+            // the mode switch is in the "STBY" position
+            waiting_for_start = 1;
+            usart_tx_b (0);
+            }
+          else
+            {
+            // the mode switch is in the "PROG" position
+            waiting_for_start = 0;
+            usart_tx_b (1);
+            }
+          pinMode(LED_BUILTIN, OUTPUT);
+          rx_state = 0;
+          }         
         }
       }      
-    }
+
+    if (waiting_for_start)
+      {
+      // Blink Arduino on board LED to indicate that it is waiting for the mode switch
+      // will be in the "PROG" position
+      digitalWrite(LED_BUILTIN, ((millis()/200)%2)?HIGH:LOW);
+      }
 }
 
 
