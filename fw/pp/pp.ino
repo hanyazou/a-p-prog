@@ -34,6 +34,8 @@
 #define  ISP_CLK_DELAY  1
 void isp_send (unsigned int data, unsigned char n);
 unsigned int isp_read_16 (void);
+void acquire_isp_dat_clk(void);
+void release_isp_dat_clk(void);
 unsigned char enter_progmode (void);
 unsigned char exit_progmode (void);
 void isp_read_pgm (unsigned int * data, unsigned char n);
@@ -100,11 +102,8 @@ void setup (void)
   UBRR0L = (uint8_t) ((_UBRR) & 0xFF); 
   UCSR0B |= _BV(TXEN0);
   UCSR0B |= _BV(RXEN0);
-  
-  ISP_CLK_D_0
-  ISP_DAT_D_0
-  ISP_DAT_0
-  ISP_CLK_0
+
+  release_isp_dat_clk();
   ISP_MCLR_D_0
   ISP_MCLR_1
   rx_state = 0;
@@ -709,10 +708,23 @@ for (i=0;i<16;i++)
  return out;
 }
 
+void acquire_isp_dat_clk (void)
+{
+  ISP_DAT_0
+  ISP_CLK_0
+  ISP_CLK_D_0
+  ISP_DAT_D_0
+}
 
+void release_isp_dat_clk (void)
+{
+  ISP_CLK_D_I
+  ISP_DAT_D_I
+}
 
 unsigned char enter_progmode (void)
 {
+acquire_isp_dat_clk();
 ISP_MCLR_0
 _delay_us(300);
 isp_send(0b01010000,8);
@@ -728,6 +740,7 @@ isp_send(0,1);
 
 unsigned char p18_enter_progmode (void)
 {
+acquire_isp_dat_clk();
 ISP_MCLR_0
 _delay_us(300);
 isp_send(0b10110010,8);
@@ -951,6 +964,7 @@ unsigned int p18_get_cmd_payload (unsigned char cmd)
 
 unsigned char exit_progmode (void)
 {
+release_isp_dat_clk();
 ISP_MCLR_1
 _delay_ms(30);
 ISP_MCLR_0
@@ -962,6 +976,7 @@ ISP_MCLR_1
 
 unsigned char p16c_enter_progmode (void)
 {
+acquire_isp_dat_clk();
 ISP_MCLR_0
 _delay_us(300);
 isp_send_8_msb(0x4d);
