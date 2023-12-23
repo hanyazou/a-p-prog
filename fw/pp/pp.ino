@@ -5,6 +5,9 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
+#define PIC_ALL
+#define PIC_18F_Q
+
 #if defined(ARDUINO_AVR_UNO)
     // Arduino UNO
     #define ISP_PORT  PORTC
@@ -124,14 +127,19 @@ void loop()
         return;
 
     switch (rx_message[0]) {
+    #if defined(PIC_ALL)
     case 0x01:
         enter_progmode();
         usart_tx_b(0x81);
         break;
+    #endif
+    #if defined(PIC_ALL) || defined(PIC_18F_Q)
     case 0x02:
         exit_progmode();
         usart_tx_b(0x82);
         break;
+    #endif
+    #if defined(PIC_ALL)
     case 0x03:
         isp_reset_pointer();
         usart_tx_b(0x83);
@@ -220,6 +228,8 @@ void loop()
         p18fk_isp_write_cfg(rx_message[6], rx_message[7], addr);
         usart_tx_b(0xB2);
         break;
+    #endif  // PIC_ALL
+    #if defined(PIC_ALL) || defined(PIC_18F_Q)
     case 0x40:
         p16c_enter_progmode();
         usart_tx_b(0xC0);
@@ -233,6 +243,8 @@ void loop()
             usart_tx_b(flash_buffer[i] >> 8);
         }
         break;
+    #endif
+    #if defined(PIC_ALL)
     case 0x42:
         addr = (((unsigned long)(rx_message[3]))<<16) + (((unsigned long)(rx_message[4]))<<8) + (((unsigned long)(rx_message[5]))<<0);
         for (i=0; i < rx_message[2] / 2; i++) {
@@ -241,11 +253,15 @@ void loop()
         p16c_isp_write_pgm(flash_buffer, addr, rx_message[2]/2);
         usart_tx_b(0xC2);
         break;
+    #endif
+    #if defined(PIC_ALL) || defined(PIC_18F_Q)
     case 0x43:
         p16c_set_pc(0x8000);
         p16c_bulk_erase();
         usart_tx_b(0xC3);
         break;
+    #endif
+    #if defined(PIC_ALL)
     case 0x44:
         addr = (((unsigned long)(rx_message[3]))<<16) + (((unsigned long)(rx_message[4]))<<8) + (((unsigned long)(rx_message[5]))<<0);
         cfg_val = rx_message[6];
@@ -260,6 +276,8 @@ void loop()
         p18q_isp_write_cfg(cfg_val, addr);
         usart_tx_b(0xC5);
         break;
+    #endif
+    #if defined(PIC_ALL) || defined(PIC_18F_Q)
     case 0x46:
         addr = (((unsigned long)(rx_message[3]))<<16) + (((unsigned long)(rx_message[4]))<<8) + (((unsigned long)(rx_message[5]))<<0);
         for (i=0; i < rx_message[2] / 2; i++) {
@@ -286,6 +304,7 @@ void loop()
         usart_tx_b(0xC3);
         break;
     }
+    #endif
     rx_state = 0;
 }
 
@@ -314,6 +333,7 @@ unsigned char rx_state_machine(unsigned char state, unsigned char rx_char)
     }
 }
 
+#if defined(PIC_ALL)
 void isp_read_pgm(unsigned int * data, unsigned char n)
 {
     unsigned char i;
@@ -447,7 +467,9 @@ void isp_send(unsigned int data, unsigned char n)
         //  DELAY;
     }
 }
+#endif
 
+#if defined(PIC_ALL) || defined(PIC_18F_Q)
 void isp_send_24_msb(unsigned long data)
 {
     unsigned char i;
@@ -523,6 +545,7 @@ unsigned int isp_read_16_msb(void)
     }
     return out;
 }
+#endif
 
 void acquire_isp_dat_clk(void)
 {
@@ -538,6 +561,7 @@ void release_isp_dat_clk(void)
     ISP_DAT_IN;
 }
 
+#if defined(PIC_ALL)
 unsigned char enter_progmode(void)
 {
     acquire_isp_dat_clk();
@@ -658,7 +682,9 @@ void p18_isp_write_cfg(unsigned char data1, unsigned char data2, unsigned long a
     p_18_modfied_nop(1);
     _delay_ms(5);
 }
+#endif  // PIC_ALL
 
+#if defined(PIC_ALL) || defined(PIC_18F_Q)
 void p18q_isp_read_cfg(unsigned int * data, unsigned long addr, unsigned char n)
 {
     int i;
@@ -679,7 +705,9 @@ void p18q_isp_read_cfg(unsigned int * data, unsigned long addr, unsigned char n)
         data[i] = retval;
     }
 }
+#endif
 
+#if defined(PIC_ALL)
 void p18fk_isp_write_cfg(unsigned char data1, unsigned char data2, unsigned long addr)
 {
     unsigned int i;
@@ -773,7 +801,9 @@ unsigned int p18_get_cmd_payload(unsigned char cmd)
     isp_send(cmd, 4);
     return isp_read_16();
 }
+#endif  // PIC_ALL
 
+#if defined(PIC_ALL) || defined(PIC_18F_Q)
 unsigned char exit_progmode(void)
 {
     release_isp_dat_clk();
@@ -783,9 +813,11 @@ unsigned char exit_progmode(void)
     _delay_ms(30);
     ISP_MCLR(1);
 }
+#endif
 
 //***********************************************************************************//
 
+#if defined(PIC_ALL) || defined(PIC_18F_Q)
 unsigned char p16c_enter_progmode(void)
 {
     acquire_isp_dat_clk();
@@ -810,7 +842,9 @@ void p16c_bulk_erase(void)
     isp_send_8_msb(0x18);
     _delay_ms(100);
 }
+#endif
 
+#if defined(PIC_ALL)
 void p16c_load_nvm(unsigned int data, unsigned char inc)
 {
     if (inc==0)
@@ -821,7 +855,9 @@ void p16c_load_nvm(unsigned int data, unsigned char inc)
     isp_send_24_msb(data);
     _delay_us(2);
 }
+#endif
 
+#if defined(PIC_ALL) || defined(PIC_18F_Q)
 unsigned int p16c_read_data_nvm(unsigned char inc)
 {
     unsigned int retval;
@@ -838,7 +874,9 @@ unsigned int p16c_read_data_nvm(unsigned char inc)
         retval = retval | 0x8000;
     return retval;
 }
+#endif
 
+#if defined(PIC_ALL)
 void p16c_begin_prog(unsigned char cfg_bit)
 {
     isp_send_8_msb(0xE0);
@@ -852,7 +890,9 @@ unsigned int p16c_get_ID(void)
     p16c_set_pc(0x8006);
     return p16c_read_data_nvm(1);
 }
+#endif  // PIC_ALL
 
+#if defined(PIC_ALL)
 void p16c_isp_write_pgm(unsigned int * data, unsigned long addr, unsigned char n)
 {
     unsigned char i;
@@ -863,7 +903,9 @@ void p16c_isp_write_pgm(unsigned int * data, unsigned long addr, unsigned char n
     p16c_set_pc(addr);
     p16c_begin_prog(0);
 }
+#endif
 
+#if defined(PIC_ALL) || defined(PIC_18F_Q)
 void p16c_isp_read_pgm(unsigned int * data, unsigned long addr, unsigned char n)
 {
     unsigned char i;
@@ -873,7 +915,9 @@ void p16c_isp_read_pgm(unsigned int * data, unsigned long addr, unsigned char n)
     for (i=0; i < n; i++)
         data[i] = p16c_read_data_nvm(1);
 }
+#endif
 
+#if defined(PIC_ALL)
 void p16c_isp_write_cfg(unsigned int data, unsigned long addr)
 {
     unsigned char i;
@@ -882,7 +926,9 @@ void p16c_isp_write_cfg(unsigned int data, unsigned long addr)
     p16c_load_nvm(data,0);
     p16c_begin_prog(1);
 }
+#endif
 
+#if defined(PIC_ALL) || defined(PIC_18F_Q)
 void p18qxx_bulk_erase(void)
 {
     isp_send_8_msb(0x18);
@@ -914,6 +960,7 @@ void p18q_isp_write_cfg(unsigned int data, unsigned long addr)
     isp_send_24_msb(data);
     _delay_ms(11);
 }
+#endif
 
 #if defined(ARDUINO_AVR_UNO)
 void usart_tx_b(uint8_t data)
