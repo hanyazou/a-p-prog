@@ -419,8 +419,8 @@ int setCPUtype(char* cpu)
             page_size = read_page_size;
             devid_expected = read_id;
             devid_mask = read_mask;
-            info_print("Found database match %s,%d,%d,%x,%x,%s\n", read_cpu_type,
-                       read_flash_size, read_page_size, read_id, read_mask, read_algo_type);
+            debug_print("Found database match %s,%d,%d,%x,%x,%s\n", read_cpu_type,
+                        read_flash_size, read_page_size, read_id, read_mask, read_algo_type);
             cf = NULL;
             if (!legacy_mode) {
                 for (i = 0; chip_families[i] != NULL; i++) {
@@ -1143,7 +1143,7 @@ int main(int argc, char *argv[])
     }
     info_print("PP programmer, version %s\n", PP_VERSION);
 
-    info_print("Opening serial port\n");
+    debug_print("Opening serial port\n");
     initSerialPort();
 
     if (sleep_time > 0) {
