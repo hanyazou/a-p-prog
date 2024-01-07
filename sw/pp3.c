@@ -36,6 +36,7 @@ unsigned char file_image[70000], progmem[PROGMEM_LEN], config_bytes[CONFIG_LEN];
 
 chip_family_t *chip_families[] = {
     &cf_p16f_a,
+    &cf_p16f_b,
     &cf_p18q43,
     &cf_p18q8x,
     NULL
