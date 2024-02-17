@@ -41,6 +41,10 @@
 #define _XTAL_FREQ 1000000
 #define PORT_LED A0
 
+#elif defined _18F2550
+#define _XTAL_FREQ 4000000
+#define PORT_LED A0
+
 #else  // MCU SPECIFIC
 #error unsupported MCU
 
