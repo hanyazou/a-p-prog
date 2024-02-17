@@ -60,13 +60,19 @@
 
 #define IO_CAT(x, y) IO_CAT_(x, y)
 #define IO_CAT_(x, y) x ## y
+#define IO_CAT3(a, b, c) IO_CAT3_(a, b, c)
+#define IO_CAT3_(a, b, c) a ## b ## c
+#define IO_CAT4(a, b, c, d) IO_CAT4_(a, b, c, d)
+#define IO_CAT4_(a, b, c, d) a ## b ## c ## d
+
+#define IO_NAME(P) IO_CAT(IO_NAME_, P)
 
 // get/set IO aliases
-#define IO_TRIS(P)              IO_CAT(TRISAbits.TRIS, P)
-#define IO_LAT(P)               IO_CAT(LATAbits.LAT, P)
-#define IO_PORT(P)              IO_CAT(PORTAbits.R, P)
-#define IO_WPU(P)               IO_CAT(WPUAbits.WPU, P)
-#define IO_OD(P)                IO_CAT(ODCONAbits.OD, P)
+#define IO_TRIS(P)              IO_CAT4(TRIS, IO_NAME(P), bits.TRIS, P)
+#define IO_LAT(P)               IO_CAT4(LAT,  IO_NAME(P), bits.LAT,  P)
+#define IO_PORT(P)              IO_CAT4(PORT, IO_NAME(P), bits.R,    P)
+#define IO_WPU(P)               IO_CAT4(WPU,  IO_NAME(P), bits.WPU,  P)
+#define IO_OD(P)                IO_CAT4(ODCON,IO_NAME(P), bits.OD,   P)
 
 /**
  * @Param
@@ -92,5 +98,50 @@ void SYSTEM_Initialize(void);
     PIN_MANAGER_IOC();
  */
 void PIN_MANAGER_IOC(void);
+
+#define IO_NAME_A0 A
+#define IO_NAME_A1 A
+#define IO_NAME_A2 A
+#define IO_NAME_A3 A
+#define IO_NAME_A4 A
+#define IO_NAME_A5 A
+#define IO_NAME_A6 A
+#define IO_NAME_A7 A
+
+#define IO_NAME_B0 B
+#define IO_NAME_B1 B
+#define IO_NAME_B2 B
+#define IO_NAME_B3 B
+#define IO_NAME_B4 B
+#define IO_NAME_B5 B
+#define IO_NAME_B6 B
+#define IO_NAME_B7 B
+
+#define IO_NAME_C0 C
+#define IO_NAME_C1 C
+#define IO_NAME_C2 C
+#define IO_NAME_C3 C
+#define IO_NAME_C4 C
+#define IO_NAME_C5 C
+#define IO_NAME_C6 C
+#define IO_NAME_C7 C
+
+#define IO_NAME_D0 D
+#define IO_NAME_D1 D
+#define IO_NAME_D2 D
+#define IO_NAME_D3 D
+#define IO_NAME_D4 D
+#define IO_NAME_D5 D
+#define IO_NAME_D6 D
+#define IO_NAME_D7 D
+
+#define IO_NAME_E0 E
+#define IO_NAME_E1 E
+#define IO_NAME_E2 E
+#define IO_NAME_E3 E
+#define IO_NAME_E4 E
+#define IO_NAME_E5 E
+#define IO_NAME_E6 E
+#define IO_NAME_E7 E
 
 #endif	// MCC_H
